@@ -1,5 +1,7 @@
 @echo off
-pushd E:\Downloads\test
+pushd D:\Gdrive_tmp\kong_drive
+set cur_dir=%~dp0
+set ffmpeg_dir=%~dp0\ffmpeg.exe
 
 setlocal EnableDelayedExpansion
 for /F "tokens=1,2 delims=#" %%a in ('"prompt #$H#$E# & echo on & for %%b in (1) do rem"') do (
@@ -16,9 +18,12 @@ echo Punctuations in the file names may give false positives. If you have many v
 pause
 echo.
 
+@echo Start ouput > result.log
+@echo.>>result.log
+
 FOR /F "delims=*" %%G in ('dir /b /s *.mkv *.mp4 *.mpg *.mpeg *.xvid *.webm *.m2v *.m4v *.3gp *.3g2 *.avi *.mov *.flv *.wmv') DO (
 	echo Verifying "%%G"
-	ffmpeg -v error -i "%%G" -map 0:1 -f null - 2>"%%G.log"
+	%ffmpeg_dir% -v error -i "%%G" -map 0:1 -f null - 2>"%%G.log"
 	FOR %%F in ("%%G.log") DO (
 		if %%~zF equ 0 (
 			del %%F
@@ -27,6 +32,7 @@ FOR /F "delims=*" %%G in ('dir /b /s *.mkv *.mp4 *.mpg *.mpeg *.xvid *.webm *.m2
 			echo. 
 		) else (
 			call :colour 0c "Error in video file:"
+			@echo Error in video file: %%G >> result.log
 			echo.
 			type %%F
 			call :colour 0e "This can be found in the video's .log file"
